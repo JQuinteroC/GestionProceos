@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de planeación</title>
+    <title>Algoritmos de planificación</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="clases.js"></script>
     <link rel="stylesheet" href="main.css">
@@ -19,19 +19,16 @@
 
      
 
-        <div class="box"
-            style="/*! display: flex; *//*! align-items: center; */display: flex;justify-content: center;align-items: center;">
-            <canvas height="820" id="memoria">
-            </canvas>
-            <script src="logica.js">
-            </script>
+        <div class="box">
+
         </div>
         
     </div>
-    <div class="gant">
-        <div class="box">
-
-            <button id="empezar">Empezar</button>
+    <div class="gant" >
+        <div class="box" style="overflow-y: hidden;">
+            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+            <script type="text/javascript" src="logica.js"></script>
+            <div id="timeline" style="min-height: 33vh;" ></div>
         </div>
     </div>
 </body>

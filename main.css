@@ -97,18 +97,18 @@ body {
 .container {
     grid-template-columns: 2fr 1fr;
     display: grid;
-    height: 70vh;
+    height: 65vh;
     width: 100%;
 }
 
 .gant{
-    height: auto;
-    min-height: 25vh;
+    min-height: 30vh;
     display: grid;
 }
 
 .gant .box {
-    margin-top: 20px;
+    margin-top: 1vh;
+    max-height:29vh;
 }
 
 .memoria {
