@@ -1,6 +1,26 @@
 google.charts.load('current', { 'packages': ['timeline'] });
 google.charts.setOnLoadCallback(drawChart);
 
+var procesos = [{
+    "nombre": "A",
+},
+{
+    "nombre": "B",
+},
+{
+    "nombre": "C",
+},
+{
+    "nombre": "D",
+},
+{
+    "nombre": "E",
+},
+{
+    "nombre": "F",
+},
+]
+
 function drawChart() {
     var container = document.getElementById('timeline');
     var chart = new google.visualization.Timeline(container);
@@ -37,3 +57,60 @@ function drawChart() {
     
     chart.draw(dataTable, options);
 }
+
+function agregarListener(){
+    //Acción para iniciar el programa
+    var btnIniciar = document.getElementById("iniciar");
+    btnIniciar.addEventListener("click", function() {
+        llenarTabla();
+        $("#btnDatos").show();
+    });
+
+    //Acción para insertar los datos del proceso
+    var btnInsertar = document.getElementById("btnDatos");
+    btnInsertar.addEventListener("click", function(){
+        bloquearCampos();
+    })
+}
+
+//Funcion para bloquear los inputs de la tabla de procesos
+function bloquearCampos(){
+    for(let i = 0; i < procesos.length; i++){
+        var li = document.getElementById('li' + i);
+        var t = document.getElementById('t' + i);
+        var inicio = document.getElementById('inicio' + i);
+        var duracion = document.getElementById('duracion' + i);
+
+        if(li.value != "" && t.value != "" && inicio.value != "" && duracion.value != ""){
+            li.disabled = true;
+            t.disabled = true;
+            inicio.disabled = true;
+            duracion.disabled = true;
+        }
+    }
+}
+
+//Función para completar de procesos con los input
+function llenarTabla(){
+    document.getElementById("procesos").replaceChildren();
+    for(let i=0; i < procesos.length; i++){
+        const proceso = procesos[i];
+
+        var fila = "<tr><td>" + proceso.nombre + "</td><td> <input type = 'text' id = 'li" + i + "'> </td>" + 
+                                                "<td> <input type = 'text' id = 't" + i + "'> </td>" + 
+                                                "<td> <input type = 'text' id = 'inicio" + i + "'> </td>" +
+                                                "<td> <input type = 'text' id = 'duracion" + i + "'> </td>"  
+                                                + "</tr>";  
+
+        var tr = document.createElement("TR");
+        tr.innerHTML = fila;
+        document.getElementById("procesos").appendChild(tr);
+    }
+}
+
+function init(){
+    agregarListener();
+    $("#btnDatos").hide();
+}
+
+init();
