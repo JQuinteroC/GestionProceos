@@ -86,6 +86,11 @@ function bloquearCampos(){
             t.disabled = true;
             inicio.disabled = true;
             duracion.disabled = true;
+        }else{
+            li.value = " ";
+            t.value = " ";
+            inicio.value = " ";
+            duracion.value = " ";
         }
     }
 }
