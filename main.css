@@ -40,8 +40,8 @@ tr:hover td {
     color: white;
 }
 
-#selec {
-    width: 250px;
+#select {
+    width: 200px;
     height: 50px;
     border: none;
     color: white;
@@ -63,7 +63,7 @@ td button {
   
 button {
     margin-top: 20px;
-    width: 150px;
+    width: 100px;
     height: 50px;
     border: none;
     color: white;
@@ -154,8 +154,6 @@ button:hover {
     }
 }
 
-
-
 #tamaño {
     margin-top: 20px;
 }
@@ -168,28 +166,30 @@ button:hover {
     text-align: center;
 }
 
+.tablasEstados {
+    background-color: slateblue;
+    padding: 10px;
+    color: #fff;
+    overflow-y: scroll;
+    text-align: center;
+    margin-top: 1vh;
+    display: flex;
+    justify-content: space-evenly;
+}
+
 .container {
     grid-template-columns: 2fr 1fr;
     display: grid;
-    height: 65vh;
+    height: 50vh;
     width: 100%;
 }
 
 .gant{
     min-height: 30vh;
+    width: 75%;
     display: grid;
 }
 
-.gant .box {
-    margin-top: 1vh;
-    max-height:29vh;
-}
-
-.memoria {
-    text-align: center;
-    display: flex;
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+input{
+    width: 50px;
 }

@@ -1,27 +1,44 @@
 google.charts.load('current', { 'packages': ['timeline'] });
-google.charts.setOnLoadCallback(drawChart);
-
+const delay = (n) => new Promise(r => setTimeout(r, n * 1000));
 var procesos = [{
     "nombre": "A",
-},
-{
+    "li": "0",
+    "t": "0",
+    "inicio": "0",
+    "duracion": "0"
+}, {
     "nombre": "B",
-},
-{
+    "li": "0",
+    "t": "0",
+    "inicio": "0",
+    "duracion": "0"
+}, {
     "nombre": "C",
-},
-{
+    "li": "0",
+    "t": "0",
+    "inicio": "0",
+    "duracion": "0"
+}, {
     "nombre": "D",
-},
-{
+    "li": "0",
+    "t": "0",
+    "inicio": "0",
+    "duracion": "0"
+}, {
     "nombre": "E",
-},
-{
+    "li": "0",
+    "t": "0",
+    "inicio": "0",
+    "duracion": "0"
+}, {
     "nombre": "F",
-},
-]
+    "li": "0",
+    "t": "0",
+    "inicio": "0",
+    "duracion": "0"
+}]
 
-function drawChart() {
+function dibujarGantt(filas) {
     var container = document.getElementById('timeline');
     var chart = new google.visualization.Timeline(container);
     var dataTable = new google.visualization.DataTable();
@@ -31,63 +48,76 @@ function drawChart() {
     dataTable.addColumn({ type: 'date', id: 'Start' });
     dataTable.addColumn({ type: 'date', id: 'End' });
     // Date(year, month, day, hours, minutes, seconds, milliseconds)
-    // #BFBFBF - Espera
-    // #FF0000 - Bloqueado
-    // #00B050 - Ejecución
-    // #00B0F0 - Despachador
-    dataTable.addRows([
-        ['B', '', '#BFBFBF', new Date(0, 0, 0, 0, 0, 1, 0), new Date(0, 0, 0, 0, 0, 2, 0)],
-        ['A', '', '#00B050', new Date(0, 0, 0, 0, 0, 20, 0), new Date(0, 0, 0, 0, 0, 23, 0)],
-        ['A', '', '#BFBFBF', new Date(0, 0, 0, 0, 0, 5, 0), new Date(0, 0, 0, 0, 0, 20, 0)],
-        ['A', '', '#FF0000', new Date(0, 0, 0, 0, 0, 3, 0), new Date(0, 0, 0, 0, 0, 5, 0)],
-        ['A', '', '#00B050', new Date(0, 0, 0, 0, 0, 1, 0), new Date(0, 0, 0, 0, 0, 3, 0)],
-        ['A', '', '#BFBFBF', new Date(0, 0, 0, 0, 0, 0, 0), new Date(0, 0, 0, 0, 0, 1, 0)],
-        ['Dispatcher', '', '#00B0F0', new Date(0, 0, 0, 0, 0, 20, 0), new Date(0, 0, 0, 0, 0, 21, 0)],
-        ['Dispatcher', '', '#00B0F0', new Date(0, 0, 0, 0, 0, 17, 0), new Date(0, 0, 0, 0, 0, 18, 0)],
-        ['Dispatcher', '', '#00B0F0', new Date(0, 0, 0, 0, 0, 14, 0), new Date(0, 0, 0, 0, 0, 15, 0)],
-        ['Dispatcher', '', '#00B0F0', new Date(0, 0, 0, 0, 0, 10, 0), new Date(0, 0, 0, 0, 0, 11, 0)],
-        ['Dispatcher', '', '#00B0F0', new Date(0, 0, 0, 0, 0, 6, 0), new Date(0, 0, 0, 0, 0, 7, 0)],
-        ['Dispatcher', '', '#00B0F0', new Date(0, 0, 0, 0, 0, 4, 0), new Date(0, 0, 0, 0, 0, 5, 0)],
-        ['Dispatcher', '', '#00B0F0', new Date(0, 0, 0, 0, 0, 0, 0), new Date(0, 0, 0, 0, 0, 1, 0)]
-    ]);
+    filas.forEach(fila => {
+        var color = '#FFF';
+        // #BFBFBF - Espera
+        if (fila.estado == "W")
+            color = '#BFBFBF';
+        // #FF0000 - Bloqueado
+        if (fila.estado == "B")
+            color = '#FF0000';
+        // #00B050 - Ejecución
+        if (fila.estado == "E")
+            color = '#00B050';
+        // #00B0F0 - Despachador
+        if (fila.estado == "D")
+            color = '#00B0F0';
+
+        dataTable.addRows([[fila.nombre, '', color, new Date(0, 0, 0, 0, 0, fila.inicio, 0), new Date(0, 0, 0, 0, 0, fila.fin, 0)]]);
+    });
 
     var options = {
-        tooltip : {trigger: 'none'},
+        tooltip: { trigger: 'none' },
     }
-    
+
     chart.draw(dataTable, options);
 }
 
-function agregarListener(){
+function agregarListener() {
     //Acción para iniciar el programa
     var btnIniciar = document.getElementById("iniciar");
-    btnIniciar.addEventListener("click", function() {
-        llenarTabla();
+    btnIniciar.addEventListener("click", function () {
+        llenarTablaProcesos();
         $("#btnDatos").show();
+        $("#timeline").empty()
     });
 
     //Acción para insertar los datos del proceso
     var btnInsertar = document.getElementById("btnDatos");
-    btnInsertar.addEventListener("click", function(){
+    btnInsertar.addEventListener("click", function () {
         bloquearCampos();
-    })
+        llenarGantt();
+    });
 }
 
 //Funcion para bloquear los inputs de la tabla de procesos
-function bloquearCampos(){
-    for(let i = 0; i < procesos.length; i++){
+function bloquearCampos() {
+    for (let i = 0; i < this.procesos.length; i++) {
         var li = document.getElementById('li' + i);
         var t = document.getElementById('t' + i);
         var inicio = document.getElementById('inicio' + i);
         var duracion = document.getElementById('duracion' + i);
 
-        if(li.value == "" || t.value == "" || inicio.value == "" || duracion.value == ""){
+        // Validar campos llenos
+        if (li.value == "" || t.value == "") {
             li.value = "0";
             t.value = "0";
             inicio.value = "0";
             duracion.value = "0";
         }
+        inicio.value = inicio.value == "" ? "0" : inicio.value;
+        duracion.value = duracion.value == "" ? "0" : duracion.value;
 
+        // Guardar valores
+        this.procesos[i] = {
+            "nombre": this.procesos[i].nombre,
+            "li": li.value,
+            "t": t.value,
+            "inicio": inicio.value,
+            "duracion": duracion.value
+        };
+
+        // Desabilitar campos
         li.disabled = true;
         t.disabled = true;
         inicio.disabled = true;
@@ -96,16 +126,16 @@ function bloquearCampos(){
 }
 
 //Función para completar de procesos con los input
-function llenarTabla(){
+function llenarTablaProcesos() {
     document.getElementById("procesos").replaceChildren();
-    for(let i=0; i < procesos.length; i++){
+    for (let i = 0; i < procesos.length; i++) {
         const proceso = procesos[i];
 
-        var fila = "<tr><td>" + proceso.nombre + "</td><td> <input type = 'text' id = 'li" + i + "'> </td>" + 
-                                                "<td> <input type = 'text' id = 't" + i + "'> </td>" + 
-                                                "<td> <input type = 'text' id = 'inicio" + i + "'> </td>" +
-                                                "<td> <input type = 'text' id = 'duracion" + i + "'> </td>"  
-                                                + "</tr>";  
+        var fila = "<tr><td>" + proceso.nombre + "</td><td> <input type = 'text' id = 'li" + i + "'> </td>" +
+            "<td> <input type = 'text' id = 't" + i + "'> </td>" +
+            "<td> <input type = 'text' id = 'inicio" + i + "'> </td>" +
+            "<td> <input type = 'text' id = 'duracion" + i + "'> </td>"
+            + "</tr>";
 
         var tr = document.createElement("TR");
         tr.innerHTML = fila;
@@ -113,7 +143,19 @@ function llenarTabla(){
     }
 }
 
-function init(){
+function llenarGantt() {
+    // await delay(5);
+    procesosTemp = []
+
+    this.procesos.forEach(proceso => {
+        procesosTemp.push({ nombre: proceso.nombre, estado: "E", inicio: parseInt(proceso.li), fin: parseInt(proceso.li) + parseInt(proceso.t) })
+        procesosTemp.push({ nombre: proceso.nombre, estado: "B", inicio: parseInt(proceso.inicio), fin: parseInt(proceso.inicio) + parseInt(proceso.duracion) })
+    });
+    console.log(procesosTemp)
+    google.charts.setOnLoadCallback(dibujarGantt(procesosTemp));
+}
+
+function init() {
     agregarListener();
     $("#btnDatos").hide();
 }
