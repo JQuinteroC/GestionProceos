@@ -81,17 +81,17 @@ function bloquearCampos(){
         var inicio = document.getElementById('inicio' + i);
         var duracion = document.getElementById('duracion' + i);
 
-        if(li.value != "" && t.value != "" && inicio.value != "" && duracion.value != ""){
-            li.disabled = true;
-            t.disabled = true;
-            inicio.disabled = true;
-            duracion.disabled = true;
-        }else{
-            li.value = " ";
-            t.value = " ";
-            inicio.value = " ";
-            duracion.value = " ";
+        if(li.value == "" || t.value == "" || inicio.value == "" || duracion.value == ""){
+            li.value = "0";
+            t.value = "0";
+            inicio.value = "0";
+            duracion.value = "0";
         }
+
+        li.disabled = true;
+        t.disabled = true;
+        inicio.disabled = true;
+        duracion.disabled = true;
     }
 }
 
