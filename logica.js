@@ -50,6 +50,7 @@ function dibujarGantt(filas) {
     dataTable.addColumn({ type: 'date', id: 'Start' });
     dataTable.addColumn({ type: 'date', id: 'End' });
     // Date(year, month, day, hours, minutes, seconds, milliseconds)
+
     filas.forEach(fila => {
         var color = '#FFF';
         // #BFBFBF - Espera
@@ -127,9 +128,7 @@ function bloquearCampos() {
     }
 
     gestor = new GestionProcesos(this.procesos);
-
     gestor.ordernarLista();
-    google.charts.setOnLoadCallback(dibujarGantt(gestor.FCFS()));
 }
 
 //Función para completar de procesos con los input
@@ -152,14 +151,8 @@ function llenarTablaProcesos() {
 
 function llenarGantt() {
     // await delay(5);
-    procesosTemp = []
-
-    this.procesos.forEach(proceso => {
-        procesosTemp.push({ nombre: proceso.nombre, estado: "E", inicio: parseInt(proceso.li), fin: parseInt(proceso.li) + parseInt(proceso.t) })
-        procesosTemp.push({ nombre: proceso.nombre, estado: "B", inicio: parseInt(proceso.inicio), fin: parseInt(proceso.inicio) + parseInt(proceso.duracion) })
-    });
-    console.log(procesosTemp)
-    //google.charts.setOnLoadCallback(dibujarGantt(procesosTemp));
+    procesosTemp = gestor.FCFS()
+    google.charts.setOnLoadCallback(dibujarGantt(procesosTemp));
 }
 
 function init() {

@@ -1,11 +1,9 @@
 class Proceso {
 
-    constructor(nombre, li, t, estado) {
+    constructor(nombre, inicio, fin, estado) {
         this.nombre = nombre;
-        this.li = li;
-        this.t = t;
-        //this.inicio = inicio;
-        //this.duracion = duracion;
+        this.inicio = inicio;
+        this.fin = fin;
         this.estado = estado;
     }
 };
@@ -19,6 +17,10 @@ class GestionProcesos {
             var proceso = listaProcesos[i];
             if (proceso.t != 0) {
                 proceso.estado = '';
+                proceso.li = parseInt(proceso.li);
+                proceso.t = parseInt(proceso.t);
+                proceso.inicio = parseInt(proceso.inicio);
+                proceso.duracion = parseInt(proceso.duracion);
                 proceso.restante = proceso.t;
                 procesosTemp.push(proceso);
             }
@@ -44,9 +46,8 @@ class GestionProcesos {
         var tiempo = 0;
 
         this.listaProcesos[0].estado = "E";
-
         while (this.listaProcesos.length > 0) {
-            for (let i = 0; i < this.listaProcesos; i++) {
+            for (let i = 0; i < this.listaProcesos.length; i++) {
                 var proceso = this.listaProcesos[i];
 
                 if (proceso.estado == "E"){
@@ -56,11 +57,15 @@ class GestionProcesos {
                         proceso.li += duracion;
                         proceso.estado = "B";
                         procesos.push(new Proceso(proceso.nombre, proceso.li, proceso.duracion, proceso.estado));
+                    } else {
+                        procesos.push(new Proceso(proceso.nombre, proceso.li, proceso.li + proceso.t, proceso.estado));
+                        proceso.estado = "F";
                     }
                 }
 
-
             }
+            // Borrar cuando ya se salga del ciclo while
+            break
         }
 
         return procesos;
