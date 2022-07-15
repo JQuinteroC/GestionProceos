@@ -50,13 +50,13 @@ class GestionProcesos {
             for (let i = 0; i < this.listaProcesos.length; i++) {
                 var proceso = this.listaProcesos[i];
 
-                if (proceso.estado == "E"){
-                    if(proceso.li < proceso.inicio){
-                        var duracion = proceso.li - proceso.inicio;
-                        procesos.push(new Proceso(proceso.nombre, proceso.li, duracion, proceso.estado));
+                if (proceso.estado == "E") {
+                    if (proceso.li < proceso.inicio) {
+                        var duracion = proceso.inicio - proceso.li;
+                        procesos.push(new Proceso(proceso.nombre, proceso.li, duracion + 1, proceso.estado));
                         proceso.li += duracion;
                         proceso.estado = "B";
-                        procesos.push(new Proceso(proceso.nombre, proceso.li, proceso.duracion, proceso.estado));
+                        procesos.push(new Proceso(proceso.nombre, proceso.li, proceso.li + proceso.duracion, proceso.estado));
                     } else {
                         procesos.push(new Proceso(proceso.nombre, proceso.li, proceso.li + proceso.t, proceso.estado));
                         proceso.estado = "F";
@@ -67,7 +67,7 @@ class GestionProcesos {
             // Borrar cuando ya se salga del ciclo while
             break
         }
-
+        console.log(procesos)
         return procesos;
     }
 
