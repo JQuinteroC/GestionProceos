@@ -2,25 +2,25 @@ google.charts.load('current', { 'packages': ['timeline'] });
 const delay = (n) => new Promise(r => setTimeout(r, n * 1000));
 var procesos = [{
     "nombre": "A",
-    "li": "0",
-    "t": "0",
+    "li": "1",
+    "t": "1",
     "inicio": "0",
     "duracion": "0"
 }, {
     "nombre": "B",
-    "li": "0",
-    "t": "0",
+    "li": "3",
+    "t": "3",
     "inicio": "0",
     "duracion": "0"
 }, {
     "nombre": "C",
-    "li": "0",
-    "t": "0",
+    "li": "2",
+    "t": "4",
     "inicio": "0",
     "duracion": "0"
 }, {
     "nombre": "D",
-    "li": "0",
+    "li": "1",
     "t": "0",
     "inicio": "0",
     "duracion": "0"
@@ -37,6 +37,8 @@ var procesos = [{
     "inicio": "0",
     "duracion": "0"
 }]
+
+var gestor;
 
 function dibujarGantt(filas) {
     var container = document.getElementById('timeline');
@@ -123,6 +125,11 @@ function bloquearCampos() {
         inicio.disabled = true;
         duracion.disabled = true;
     }
+
+    gestor = new GestionProcesos(this.procesos);
+
+    gestor.ordernarLista();
+    google.charts.setOnLoadCallback(dibujarGantt(gestor.FCFS()));
 }
 
 //Función para completar de procesos con los input
@@ -131,10 +138,10 @@ function llenarTablaProcesos() {
     for (let i = 0; i < procesos.length; i++) {
         const proceso = procesos[i];
 
-        var fila = "<tr><td>" + proceso.nombre + "</td><td> <input type = 'text' id = 'li" + i + "'> </td>" +
-            "<td> <input type = 'text' id = 't" + i + "'> </td>" +
-            "<td> <input type = 'text' id = 'inicio" + i + "'> </td>" +
-            "<td> <input type = 'text' id = 'duracion" + i + "'> </td>"
+        var fila = "<tr><td>" + proceso.nombre + "</td><td> <input  value = " + proceso.li + " type = 'text' id = 'li" + i + "'> </td>" +
+            "<td> <input value = " + proceso.t + "  type = 'text' id = 't" + i + "'> </td>" +
+            "<td> <input value = " + proceso.inicio + "  type = 'text' id = 'inicio" + i + "'> </td>" +
+            "<td> <input value = " + proceso.duracion + "  type = 'text' id = 'duracion" + i + "'> </td>"
             + "</tr>";
 
         var tr = document.createElement("TR");
@@ -152,7 +159,7 @@ function llenarGantt() {
         procesosTemp.push({ nombre: proceso.nombre, estado: "B", inicio: parseInt(proceso.inicio), fin: parseInt(proceso.inicio) + parseInt(proceso.duracion) })
     });
     console.log(procesosTemp)
-    google.charts.setOnLoadCallback(dibujarGantt(procesosTemp));
+    //google.charts.setOnLoadCallback(dibujarGantt(procesosTemp));
 }
 
 function init() {
