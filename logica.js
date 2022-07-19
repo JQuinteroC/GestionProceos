@@ -39,6 +39,7 @@ var procesos = [{
 }]
 var procesosTemp = [];
 var gestor;
+var selecAlgoritmo = 0;
 
 function dibujarGantt(filas) {
     var container = document.getElementById('timeline');
@@ -81,9 +82,45 @@ function agregarListener() {
     //Acción para iniciar el programa
     var btnIniciar = document.getElementById("iniciar");
     btnIniciar.addEventListener("click", function () {
-        llenarTablaProcesos();
-        $("#btnDatos").show();
-        $("#timeline").empty()
+        var algoritmo = document.getElementById("select");
+
+        if(algoritmo.value == "Selecciona un algoritmo"){
+            alert("Seleccione un algoritmo para continuar");
+        }else{
+            switch(algoritmo.value){
+                case "1":
+                    selecAlgoritmo = 1;
+                    break;
+                
+                case "2":
+                    selecAlgoritmo = 2;
+                    break;
+
+                case "3":
+                    selecAlgoritmo = 3;
+                    break;
+
+                case "4":
+                    var q = document.getElementById("quantum").value;
+
+                    if(q.length == 0){
+                        alert("Tiene que llenar el valor de q");
+
+                    }else{
+                        selecAlgoritmo = 4;
+                    }
+
+                    break;
+            }
+
+            if(selecAlgoritmo != 0){
+                llenarTablaProcesos();
+                $("#btnDatos").show();
+                $("#timeline").empty();
+            }
+
+        }
+        
     });
 
     //Acción para insertar los datos del proceso
@@ -151,10 +188,20 @@ function llenarTablaProcesos() {
 }
 
 async function llenarGantt() {
-    while (!gestor.finalizo()) {
-        await delay(1);
-        procesosTemp.push(...gestor.FCFS())
-        google.charts.setOnLoadCallback(dibujarGantt(procesosTemp));
+    switch(selecAlgoritmo){
+        case 1:
+            while (!gestor.finalizo()) {
+                await delay(1);
+                procesosTemp.push(...gestor.FCFS())
+                google.charts.setOnLoadCallback(dibujarGantt(procesosTemp));
+            }
+            break;
+        case 2:
+            break;
+        case 3:
+            break;
+        case 4:
+            break;
     }
 }
 
