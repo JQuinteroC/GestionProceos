@@ -133,7 +133,7 @@ class GestionProcesos {
         if (this.procesosActivos() == 1) {
             for (let i = 0; i < this.listaProcesos.length; i++) {
                 const proceso = this.listaProcesos[i];
-                if (proceso.duracion <= 0) {
+                if (proceso.estado == "W" && proceso.duracion <= 0) {
                     proceso.estado = "E";
                 }
             }

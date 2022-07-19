@@ -40,6 +40,8 @@ var procesos = [{
 var procesosTemp = [];
 var gestor;
 var selecAlgoritmo = 0;
+var procesosBloqueados = []
+var procesosEspera = []
 
 function dibujarGantt(filas) {
     var container = document.getElementById('timeline');
@@ -84,14 +86,14 @@ function agregarListener() {
     btnIniciar.addEventListener("click", function () {
         var algoritmo = document.getElementById("select");
 
-        if(algoritmo.value == "Selecciona un algoritmo"){
+        if (algoritmo.value == "Selecciona un algoritmo") {
             alert("Seleccione un algoritmo para continuar");
-        }else{
-            switch(algoritmo.value){
+        } else {
+            switch (algoritmo.value) {
                 case "1":
                     selecAlgoritmo = 1;
                     break;
-                
+
                 case "2":
                     selecAlgoritmo = 2;
                     break;
@@ -103,24 +105,24 @@ function agregarListener() {
                 case "4":
                     var q = document.getElementById("quantum").value;
 
-                    if(q.length == 0){
+                    if (q.length == 0) {
                         alert("Tiene que llenar el valor de q");
 
-                    }else{
+                    } else {
                         selecAlgoritmo = 4;
                     }
 
                     break;
             }
 
-            if(selecAlgoritmo != 0){
+            if (selecAlgoritmo != 0) {
                 llenarTablaProcesos();
                 $("#btnDatos").show();
                 $("#timeline").empty();
             }
 
         }
-        
+
     });
 
     //Acción para insertar los datos del proceso
@@ -188,12 +190,26 @@ function llenarTablaProcesos() {
 }
 
 async function llenarGantt() {
-    switch(selecAlgoritmo){
+    switch (selecAlgoritmo) {
         case 1:
             while (!gestor.finalizo()) {
+                procesosBloqueados = [];
+                procesosEspera = [];
+
                 await delay(1);
-                procesosTemp.push(...gestor.FCFS())
+                var procesoEstado = gestor.FCFS()
+                procesosTemp.push(...procesoEstado)
                 google.charts.setOnLoadCallback(dibujarGantt(procesosTemp));
+
+                procesoEstado.forEach(proceso => {
+                    if (proceso.estado == 'B') {
+                        procesosBloqueados.push(proceso);
+                    }
+                    if (proceso.estado == 'W') {
+                        procesosEspera.push(proceso);
+                    }
+                });
+                llenarTablas();
             }
             break;
         case 2:
@@ -202,6 +218,28 @@ async function llenarGantt() {
             break;
         case 4:
             break;
+    }
+}
+
+function llenarTablas() {
+    document.getElementById("procesosEnEspera").replaceChildren();
+    for (let i = 0; i < procesosEspera.length; i++) {
+        const proceso = procesosEspera[i];
+
+        var fila = "<tr><td>" + (i + 1) + "</td><td>" + proceso.nombre + "</td></tr>";
+        var tr = document.createElement("TR");
+        tr.innerHTML = fila;
+        document.getElementById("procesosEnEspera").appendChild(tr);
+    }
+
+    document.getElementById("procesosBloqueados").replaceChildren();
+    for (let i = 0; i < procesosBloqueados.length; i++) {
+        const proceso = procesosBloqueados[i];
+
+        var fila = "<tr><td>" + (i + 1) + "</td><td>" + proceso.nombre + "</td></tr>";
+        var tr = document.createElement("TR");
+        tr.innerHTML = fila;
+        document.getElementById("procesosBloqueados").appendChild(tr);
     }
 }
 
