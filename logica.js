@@ -170,6 +170,11 @@ function bloquearCampos() {
 
     gestor = new GestionProcesos(JSON.parse(JSON.stringify(this.procesos)));
     gestor.ordernarLista();
+/*
+    gestor = new GestionProcesos(this.procesos);
+    gestor.ordernarLista(selecAlgoritmo);
+*/
+
 }
 
 //Función para completar de procesos con los input
@@ -235,6 +240,26 @@ async function llenarGantt() {
             }
             break;
         case 2:
+            while (!gestor.finalizo()) {
+                procesosBloqueados = [];
+                procesosEspera = [];
+            
+                await delay(1);
+                var procesoEstado = gestor.SJF();
+                procesosTemp.push(...procesoEstado)
+                google.charts.setOnLoadCallback(dibujarGantt(procesosTemp));
+
+                procesoEstado.forEach(proceso => {
+                    if (proceso.estado == 'B') {
+                        procesosBloqueados.push(proceso);
+                    }
+                    if (proceso.estado == 'W') {
+                        procesosEspera.push(proceso);
+                    }
+                });
+                llenarTablas();
+            }
+            
             break;
         case 3:
             break;

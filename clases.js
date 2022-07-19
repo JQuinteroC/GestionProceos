@@ -55,16 +55,45 @@ class GestionProcesos {
         return activos;
     }
 
-    ordernarLista() {
-        this.listaProcesos.sort(function (a, b) {
-            if (a.li > b.li) {
-                return 1;
-            }
-            if (a.li < b.li) {
-                return -1;
-            }
-            return 0;
-        })
+    ordernarLista(algoritmo) {
+        switch(algoritmo){
+            case 1:
+                this.listaProcesos.sort(function (a, b) {
+                    if (a.li > b.li) {
+                        return 1;
+                    }
+                    if (a.li < b.li) {
+                        return -1;
+                    }
+                    return 0;
+                })
+                break;
+
+            case 2:
+                this.listaProcesos.sort(function (a, b) {
+                    if (a.li == b.li){
+                        if(a.t > b.t){
+                            return 1;
+                        }
+                        if(a.t < b.t){
+                            return -1;
+                        }
+                    }
+                    if (a.li > b.li) {
+                        return 1;
+                    }
+                    if (a.li < b.li) {
+                        return -1;
+                    }
+                    return 0;
+                })
+                break;
+
+            case 3:
+                break;
+            case 4:
+                break;
+        }
     }
 
     FCFS() {
@@ -155,7 +184,108 @@ class GestionProcesos {
     }
 
     SJF() {
+        var procesos = [];
+        var ejecutable = { "idProceso": -1, "ejecutar": false };
+        
+        //Primera ejecución
+        if (this.tiempo == 0){
+            for(let i = 0; i < this.listaProcesos.length; i++){
+                this.listaProcesos[i].tiempoTotal = this.listaProcesos[i].t;
+                if(this.listaProcesos[i].li == 0){
+                    this.listaProcesos[i].estado = "E";
+                    for(let j = 0; j < this.listaProcesos.length; j++){
+                        if(this.listaProcesos[j].li == 0){
+                            if(this.listaProcesos[j].t < this.listaProcesos[i].t){
+                                this.listaProcesos[j].estado = "E";
+                                this.listaProcesos[i].estado = "W";
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
+        for (let i = 0; i < this.listaProcesos.length; i++){
+            var proceso = this.listaProcesos[i];
+
+            if (this.tiempo >= proceso.li && proceso.estado != ""){
+                //Ejecucion
+                if (proceso.estado == "E") {
+                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado));
+                    proceso.recorrido += 1;
+                    proceso.t -= 1;
+
+                    if (proceso.t <= 0) {
+                        proceso.estado = "";
+                        for (let j = 0; j < this.listaProcesos.length; j++) {
+                            const procSig = this.listaProcesos[j];
+                            if (this.tiempo >= procSig.li && procSig.estado != "" && procSig.estado != "B") {
+                                for(let k = 0; k < this.listaProcesos.length; k++){
+                                    if(k == i){
+                                        continue;
+                                    }
+                                    if(this.listaProcesos[k].tiempoTotal < this.listaProcesos[j].tiempoTotal && this.tiempo >= this.listaProcesos[k].li && this.listaProcesos[k].estado != "" && this.listaProcesos[k].estado != "B"){
+                                        ejecutable = { "idProceso": k, "ejecutar": true };
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                    if (proceso.inicio == proceso.recorrido && proceso.recorrido >= 1 && proceso.duracion > 0) {
+                        proceso.estado = "B";
+                        for (let j = 0; j < this.listaProcesos.length; j++) {
+                            const procSig = this.listaProcesos[j];
+                            if (this.tiempo >= procSig.li && procSig.estado != "" && procSig.estado != "B") {
+                                for(let k = 0; k < this.listaProcesos.length; k++){
+                                    if(k == i){
+                                        continue;
+                                    }
+                                    if(this.listaProcesos[k].tiempoTotal < this.listaProcesos[j].tiempoTotal && this.tiempo >= this.listaProcesos[k].li && this.listaProcesos[k].estado != "" && this.listaProcesos[k].estado != "B"){
+                                        ejecutable = { "idProceso": k, "ejecutar": true };
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    continue;   
+                }
+
+                // Bloqueado
+                if (proceso.estado == "B") {
+                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado));
+                    proceso.duracion -= 1;
+
+                    if (proceso.duracion <= 0) {
+                        proceso.estado = "W"
+                    }
+                    continue;
+                }
+
+                procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado));
+            }
+        }
+
+        // Ejecutar proceso en la siguiente iteración
+        if (ejecutable.ejecutar) {
+            this.listaProcesos[ejecutable.idProceso].estado = "E";
+            ejecutable = { "idProceso": -1, "ejecutar": false };
+        }
+
+        // Finalizar la simulación
+        if (this.procesosActivos() == 1) {
+            for (let i = 0; i < this.listaProcesos.length; i++) {
+                const proceso = this.listaProcesos[i];
+                if (proceso.estado == "W" && proceso.duracion <= 0) {
+                    proceso.estado = "E";
+                }
+            }
+        }
+       
+        this.tiempo += 1;
+        return procesos;
     }
 
     SRTF() {
