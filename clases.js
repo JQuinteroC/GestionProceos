@@ -1,10 +1,12 @@
 class Proceso {
 
-    constructor(nombre, inicio, fin, estado) {
+    constructor(nombre, inicio, fin, estado, restante, inicial) {
         this.nombre = nombre;
         this.inicio = inicio;
         this.fin = fin;
         this.estado = estado;
+        this.restante = restante;
+        this.inicial = inicial;
     }
 };
 
@@ -80,12 +82,20 @@ class GestionProcesos {
             if (this.tiempo >= proceso.li && proceso.estado != "") {
                 // Ejecución
                 if (proceso.estado == "E") {
-                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado));
-                    proceso.recorrido += 1;
                     proceso.t -= 1;
+                    proceso.recorrido += 1;
 
+                    // Guardar tiempo inicial
+                    if (proceso.recorrido == 1){
+                        proceso.inicial = this.tiempo - proceso.li;
+                    }
+
+                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, proceso.inicial ));
+
+                    // Cuando el proceso termino su ejecución
                     if (proceso.t <= 0) {
                         proceso.estado = "";
+                        proceso.tiempoFin = this.tiempo;
                         for (let j = 0; j < this.listaProcesos.length; j++) {
                             const procSig = this.listaProcesos[j];
                             if (this.tiempo >= procSig.li && procSig.estado != "" && procSig.estado != "B") {
@@ -95,6 +105,7 @@ class GestionProcesos {
                         }
                     }
 
+                    // Cuando el proceso se debe bloquear
                     if (proceso.inicio == proceso.recorrido && proceso.recorrido >= 1 && proceso.duracion > 0) {
                         proceso.estado = "B";
                         for (let j = 0; j < this.listaProcesos.length; j++) {
@@ -110,7 +121,7 @@ class GestionProcesos {
 
                 // Bloqueado
                 if (proceso.estado == "B") {
-                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado));
+                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1 ));
                     proceso.duracion -= 1;
 
                     if (proceso.duracion <= 0) {
@@ -119,7 +130,7 @@ class GestionProcesos {
                     continue;
                 }
 
-                procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado));
+                procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1));
             }
         }
 

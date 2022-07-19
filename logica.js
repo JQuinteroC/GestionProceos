@@ -40,8 +40,9 @@ var procesos = [{
 var procesosTemp = [];
 var gestor;
 var selecAlgoritmo = 0;
-var procesosBloqueados = []
-var procesosEspera = []
+var procesosBloqueados = [];
+var procesosEspera = [];
+var procesosFinalizados = [];
 
 function dibujarGantt(filas) {
     var container = document.getElementById('timeline');
@@ -167,7 +168,7 @@ function bloquearCampos() {
         duracion.disabled = true;
     }
 
-    gestor = new GestionProcesos(this.procesos);
+    gestor = new GestionProcesos(JSON.parse(JSON.stringify(this.procesos)));
     gestor.ordernarLista();
 }
 
@@ -208,6 +209,27 @@ async function llenarGantt() {
                     if (proceso.estado == 'W') {
                         procesosEspera.push(proceso);
                     }
+                    if (proceso.restante == 0) {
+                        this.procesos.forEach(procesInicial => {
+                            if (procesInicial.nombre == proceso.nombre) {
+                                var procesoTemp = {
+                                    "nombre": procesInicial.nombre,
+                                    "t": parseInt(procesInicial.t),
+                                    "Bloqueo": parseInt(procesInicial.duracion),
+                                    "li": parseInt(procesInicial.li),
+                                    "lf": proceso.fin
+                                }
+
+                                procesoTemp.T = procesoTemp.lf - procesoTemp.li;
+                                procesoTemp.Espera = procesoTemp.T - (procesoTemp.Bloqueo + procesoTemp.t);
+                                procesoTemp.TiempoPerdido = procesoTemp.T - procesoTemp.t;
+                                procesoTemp.lp = (procesoTemp.T / procesoTemp.t).toFixed(2);
+                                procesoTemp.Tr = proceso.inicial;
+
+                                procesosFinalizados.push(procesoTemp);
+                            }
+                        });
+                    }
                 });
                 llenarTablas();
             }
@@ -222,6 +244,7 @@ async function llenarGantt() {
 }
 
 function llenarTablas() {
+    // Procesos en espera
     document.getElementById("procesosEnEspera").replaceChildren();
     for (let i = 0; i < procesosEspera.length; i++) {
         const proceso = procesosEspera[i];
@@ -232,6 +255,7 @@ function llenarTablas() {
         document.getElementById("procesosEnEspera").appendChild(tr);
     }
 
+    // Procesos Bloqueados
     document.getElementById("procesosBloqueados").replaceChildren();
     for (let i = 0; i < procesosBloqueados.length; i++) {
         const proceso = procesosBloqueados[i];
@@ -240,6 +264,25 @@ function llenarTablas() {
         var tr = document.createElement("TR");
         tr.innerHTML = fila;
         document.getElementById("procesosBloqueados").appendChild(tr);
+    }
+
+    // Restultado de procesos
+    document.getElementById("resultadoProceso").replaceChildren();
+    for (let i = 0; i < procesosFinalizados.length; i++) {
+        const proceso = procesosFinalizados[i];
+
+        var fila = "<tr><td>" + proceso.nombre +
+            "</td><td>" + proceso.t + 
+            "</td><td>" + proceso.Espera + 
+            "</td><td>" + proceso.Bloqueo + 
+            "</td><td>" + proceso.lf + 
+            "</td><td>" + proceso.T + 
+            "</td><td>" + proceso.TiempoPerdido + 
+            "</td><td>" + proceso.lp + 
+            "</td><td>" + proceso.Tr + "</td></tr>";
+        var tr = document.createElement("TR");
+        tr.innerHTML = fila;
+        document.getElementById("resultadoProceso").appendChild(tr);
     }
 }
 
