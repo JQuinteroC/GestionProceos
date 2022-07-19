@@ -2,42 +2,42 @@ google.charts.load('current', { 'packages': ['timeline'] });
 const delay = (n) => new Promise(r => setTimeout(r, n * 1000));
 var procesos = [{
     "nombre": "A",
-    "li": "1",
-    "t": "1",
-    "inicio": "0",
-    "duracion": "0"
+    "li": "0",
+    "t": "6",
+    "inicio": "3",
+    "duracion": "2"
 }, {
     "nombre": "B",
-    "li": "3",
+    "li": "1",
+    "t": "8",
+    "inicio": "1",
+    "duracion": "3"
+}, {
+    "nombre": "C",
+    "li": "2",
+    "t": "7",
+    "inicio": "5",
+    "duracion": "1"
+}, {
+    "nombre": "D",
+    "li": "4",
     "t": "3",
     "inicio": "0",
     "duracion": "0"
 }, {
-    "nombre": "C",
-    "li": "2",
-    "t": "4",
-    "inicio": "0",
-    "duracion": "0"
-}, {
-    "nombre": "D",
-    "li": "1",
-    "t": "0",
-    "inicio": "0",
-    "duracion": "0"
-}, {
     "nombre": "E",
-    "li": "0",
-    "t": "0",
-    "inicio": "0",
-    "duracion": "0"
+    "li": "6",
+    "t": "9",
+    "inicio": "2",
+    "duracion": "4"
 }, {
     "nombre": "F",
-    "li": "0",
-    "t": "0",
+    "li": "6",
+    "t": "2",
     "inicio": "0",
     "duracion": "0"
 }]
-
+var procesosTemp = [];
 var gestor;
 
 function dibujarGantt(filas) {
@@ -66,7 +66,8 @@ function dibujarGantt(filas) {
         if (fila.estado == "D")
             color = '#00B0F0';
 
-        dataTable.addRows([[fila.nombre, '', color, new Date(0, 0, 0, 0, 0, fila.inicio, 0), new Date(0, 0, 0, 0, 0, fila.fin, 0)]]);
+        if (color != '#FFF')
+            dataTable.addRows([[fila.nombre, '', color, new Date(0, 0, 0, 0, 0, fila.inicio, 0), new Date(0, 0, 0, 0, 0, fila.fin, 0)]]);
     });
 
     var options = {
@@ -149,10 +150,12 @@ function llenarTablaProcesos() {
     }
 }
 
-function llenarGantt() {
-    // await delay(5);
-    procesosTemp = gestor.FCFS()
-    google.charts.setOnLoadCallback(dibujarGantt(procesosTemp));
+async function llenarGantt() {
+    while (!gestor.finalizo()) {
+        await delay(1);
+        procesosTemp.push(...gestor.FCFS())
+        google.charts.setOnLoadCallback(dibujarGantt(procesosTemp));
+    }
 }
 
 function init() {
