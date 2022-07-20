@@ -231,6 +231,15 @@ async function llenarGantt() {
             }
             break;
         case 4:
+            while (!gestor.finalizo()) {
+
+                await delay(1);
+                var procesoEstado = gestor.RR(document.getElementById("quantum").value);
+                procesosTemp.push(...procesoEstado)
+                google.charts.setOnLoadCallback(dibujarGantt(procesosTemp));
+
+                llenarTablas(procesoEstado);
+            }
             break;
     }
 }
