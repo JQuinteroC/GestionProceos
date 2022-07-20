@@ -224,14 +224,12 @@ class GestionProcesos {
                                 for(let k = 0; k < this.listaProcesos.length; k++){
                                     if(this.tiempo >= this.listaProcesos[k].li && this.listaProcesos[k].estado != "" && this.listaProcesos[k].estado != "B"){
                                         if(j == k){
-                                            let filtro = this.listaProcesos.filter(element => element.estado != "");
+                                            let filtro = this.listaProcesos.filter(element => element.estado == "E");
 
-                                            if(filtro.length == 2){
+                                            if(!ejecutable.ejecutar && filtro <= 0){
                                                 for(let m = 0; m < this.listaProcesos.length; m++){
                                                     if(this.tiempo >= this.listaProcesos[m].li && this.listaProcesos[m].estado != "" && this.listaProcesos[m].estado != "B"){
-                                                        encontrado = true;
-                                                        j = m;
-                                                        break;
+                                                        ejecutable = {"idProceso": m, "ejecutar": true};
                                                     }
                                                 }
                                             }
