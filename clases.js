@@ -208,7 +208,7 @@ class GestionProcesos {
         for (let i = 0; i < this.listaProcesos.length; i++){
             var proceso = this.listaProcesos[i];
 
-            if (this.tiempo >= proceso.li && proceso.estado != ""){
+            if (this.tiempo >= proceso.li && proceso.estado != ""){        
                 //Ejecucion
                 if (proceso.estado == "E") {
                     procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado));
@@ -217,17 +217,40 @@ class GestionProcesos {
 
                     if (proceso.t <= 0) {
                         proceso.estado = "";
-                        for (let j = 0; j < this.listaProcesos.length; j++) {
+                        for(let j = 0; j < this.listaProcesos.length; j++){
                             const procSig = this.listaProcesos[j];
-                            if (this.tiempo >= procSig.li && procSig.estado != "" && procSig.estado != "B") {
+                            var encontrado = false;
+                            if(this.tiempo >= procSig.li && procSig.estado != "" && procSig.estado != "B"){
                                 for(let k = 0; k < this.listaProcesos.length; k++){
-                                    if(k == i){
-                                        continue;
-                                    }
-                                    if(this.listaProcesos[k].tiempoTotal < this.listaProcesos[j].tiempoTotal && this.tiempo >= this.listaProcesos[k].li && this.listaProcesos[k].estado != "" && this.listaProcesos[k].estado != "B"){
-                                        ejecutable = { "idProceso": k, "ejecutar": true };
+                                    if(this.tiempo >= this.listaProcesos[k].li && this.listaProcesos[k].estado != "" && this.listaProcesos[k].estado != "B"){
+                                        if(j == k){
+                                            let filtro = this.listaProcesos.filter(element => element.estado != "");
+
+                                            if(filtro.length == 2){
+                                                for(let m = 0; m < this.listaProcesos.length; m++){
+                                                    if(this.tiempo >= this.listaProcesos[m].li && this.listaProcesos[m].estado != "" && this.listaProcesos[m].estado != "B"){
+                                                        encontrado = true;
+                                                        j = m;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            continue;
+                                        }
+
+                                        if(this.listaProcesos[j].tiempoTotal < this.listaProcesos[k].tiempoTotal){
+                                            encontrado = true;
+                                        }else{
+                                            encontrado = false;
+                                            break;
+                                        }
                                     }
                                 }
+                            }
+
+                            if(encontrado){
+                                ejecutable = {"idProceso": j, "ejecutar": true};
                                 break;
                             }
                         }
@@ -235,17 +258,42 @@ class GestionProcesos {
 
                     if (proceso.inicio == proceso.recorrido && proceso.recorrido >= 1 && proceso.duracion > 0) {
                         proceso.estado = "B";
-                        for (let j = 0; j < this.listaProcesos.length; j++) {
+                        for(let j = 0; j < this.listaProcesos.length; j++){
                             const procSig = this.listaProcesos[j];
-                            if (this.tiempo >= procSig.li && procSig.estado != "" && procSig.estado != "B") {
+                            var encontrado = false;
+                            
+                            if(this.tiempo >= procSig.li && procSig.estado != "" && procSig.estado != "B"){
                                 for(let k = 0; k < this.listaProcesos.length; k++){
-                                    if(k == i){
-                                        continue;
-                                    }
-                                    if(this.listaProcesos[k].tiempoTotal < this.listaProcesos[j].tiempoTotal && this.tiempo >= this.listaProcesos[k].li && this.listaProcesos[k].estado != "" && this.listaProcesos[k].estado != "B"){
-                                        ejecutable = { "idProceso": k, "ejecutar": true };
+                                    if(this.tiempo >= this.listaProcesos[k].li && this.listaProcesos[k].estado != "" && this.listaProcesos[k].estado != "B"){   
+                                          
+                                        if(j == k){
+                                            let filtro = this.listaProcesos.filter(element => element.estado != "");
+
+                                            if(filtro.length == 2){
+                                                for(let m = 0; m < this.listaProcesos.length; m++){
+                                                    if(this.tiempo >= this.listaProcesos[m].li && this.listaProcesos[m].estado != "" && this.listaProcesos[m].estado != "B"){
+                                                        encontrado = true;
+                                                        j = m;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            continue;
+                                        }
+
+                                        if(this.listaProcesos[j].tiempoTotal < this.listaProcesos[k].tiempoTotal){
+                                            encontrado = true;
+                                        }else{
+                                            encontrado = false;
+                                            break;
+                                        }
                                     }
                                 }
+                            }
+
+                            if(encontrado){
+                                ejecutable = {"idProceso": j, "ejecutar": true};
                                 break;
                             }
                         }
@@ -261,6 +309,17 @@ class GestionProcesos {
                     if (proceso.duracion <= 0) {
                         proceso.estado = "W"
                     }
+
+                    let filtro = this.listaProcesos.filter(element => element.estado == "E");
+
+                    if(!ejecutable.ejecutar && filtro <= 0){
+                        for(let m = 0; m < this.listaProcesos.length; m++){
+                            if(this.tiempo >= this.listaProcesos[m].li && this.listaProcesos[m].estado != "" && this.listaProcesos[m].estado != "B"){
+                                ejecutable = {"idProceso": m, "ejecutar": true};
+                            }
+                        }
+                    }
+
                     continue;
                 }
 
