@@ -56,7 +56,7 @@ class GestionProcesos {
     }
 
     ordernarLista(algoritmo) {
-        switch(algoritmo){
+        switch (algoritmo) {
             case 1:
                 this.listaProcesos.sort(function (a, b) {
                     if (a.li > b.li) {
@@ -71,11 +71,11 @@ class GestionProcesos {
 
             case 2:
                 this.listaProcesos.sort(function (a, b) {
-                    if (a.li == b.li){
-                        if(a.t > b.t){
+                    if (a.li == b.li) {
+                        if (a.t > b.t) {
                             return 1;
                         }
-                        if(a.t < b.t){
+                        if (a.t < b.t) {
                             return -1;
                         }
                     }
@@ -90,6 +90,23 @@ class GestionProcesos {
                 break;
 
             case 3:
+                this.listaProcesos.sort(function (a, b) {
+                    if (a.li == b.li) {
+                        if (a.t > b.t) {
+                            return 1;
+                        }
+                        if (a.t < b.t) {
+                            return -1;
+                        }
+                    }
+                    if (a.li > b.li) {
+                        return 1;
+                    }
+                    if (a.li < b.li) {
+                        return -1;
+                    }
+                    return 0;
+                })
                 break;
             case 4:
                 this.listaProcesos.sort(function (a, b) {
@@ -124,11 +141,11 @@ class GestionProcesos {
                     proceso.recorrido += 1;
 
                     // Guardar tiempo inicial
-                    if (proceso.recorrido == 1){
+                    if (proceso.recorrido == 1) {
                         proceso.inicial = this.tiempo - proceso.li;
                     }
 
-                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, proceso.inicial ));
+                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, proceso.inicial));
 
                     // Cuando el proceso termino su ejecución
                     if (proceso.t <= 0) {
@@ -159,11 +176,31 @@ class GestionProcesos {
 
                 // Bloqueado
                 if (proceso.estado == "B") {
-                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1 ));
+                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1));
                     proceso.duracion -= 1;
 
+                    var siguiente = true;
+
+                    for (let i = 0; i < this.listaProcesos.length; i++) {
+                        const proceso = this.listaProcesos[i];
+                        if (proceso.estado == "E") {
+                            siguiente = false;
+                            break;
+                        }
+                    }
+
+                    if (siguiente) {
+                        for (let j = 0; j < this.listaProcesos.length; j++) {
+                            const procSig = this.listaProcesos[j];
+                            if (this.tiempo >= procSig.li && procSig.estado != "" && procSig.estado != "B") {
+                                ejecutable = { "idProceso": j, "ejecutar": true };
+                                break;
+                            }
+                        }
+                    }
+
                     if (proceso.duracion <= 0) {
-                        proceso.estado = "W"
+                        proceso.estado = "W";
                     }
                     continue;
                 }
@@ -195,16 +232,16 @@ class GestionProcesos {
     SJF() {
         var procesos = [];
         var ejecutable = { "idProceso": -1, "ejecutar": false };
-        
+
         //Primera ejecución
-        if (this.tiempo == 0){
-            for(let i = 0; i < this.listaProcesos.length; i++){
+        if (this.tiempo == 0) {
+            for (let i = 0; i < this.listaProcesos.length; i++) {
                 this.listaProcesos[i].tiempoTotal = this.listaProcesos[i].t;
-                if(this.listaProcesos[i].li == 0){
+                if (this.listaProcesos[i].li == 0) {
                     this.listaProcesos[i].estado = "E";
-                    for(let j = 0; j < this.listaProcesos.length; j++){
-                        if(this.listaProcesos[j].li == 0){
-                            if(this.listaProcesos[j].t < this.listaProcesos[i].t){
+                    for (let j = 0; j < this.listaProcesos.length; j++) {
+                        if (this.listaProcesos[j].li == 0) {
+                            if (this.listaProcesos[j].t < this.listaProcesos[i].t) {
                                 this.listaProcesos[j].estado = "E";
                                 this.listaProcesos[i].estado = "W";
                             }
@@ -214,38 +251,38 @@ class GestionProcesos {
             }
         }
 
-        for (let i = 0; i < this.listaProcesos.length; i++){
+        for (let i = 0; i < this.listaProcesos.length; i++) {
             var proceso = this.listaProcesos[i];
 
-            if (this.tiempo >= proceso.li && proceso.estado != ""){        
+            if (this.tiempo >= proceso.li && proceso.estado != "") {
                 //Ejecucion
                 if (proceso.estado == "E") {
                     proceso.recorrido += 1;
                     proceso.t -= 1;
 
                     // Guardar tiempo inicial
-                    if (proceso.recorrido == 1){
+                    if (proceso.recorrido == 1) {
                         proceso.inicial = this.tiempo - proceso.li;
                     }
 
-                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, proceso.inicial ));
+                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, proceso.inicial));
 
                     //Proceso termino su ejecucion
                     if (proceso.t <= 0) {
                         proceso.estado = "";
-                        for(let j = 0; j < this.listaProcesos.length; j++){
+                        for (let j = 0; j < this.listaProcesos.length; j++) {
                             const procSig = this.listaProcesos[j];
                             var encontrado = false;
-                            if(this.tiempo >= procSig.li && procSig.estado != "" && procSig.estado != "B"){
-                                for(let k = 0; k < this.listaProcesos.length; k++){
-                                    if(this.tiempo >= this.listaProcesos[k].li && this.listaProcesos[k].estado != "" && this.listaProcesos[k].estado != "B"){
-                                        if(j == k){
+                            if (this.tiempo >= procSig.li && procSig.estado != "" && procSig.estado != "B") {
+                                for (let k = 0; k < this.listaProcesos.length; k++) {
+                                    if (this.tiempo >= this.listaProcesos[k].li && this.listaProcesos[k].estado != "" && this.listaProcesos[k].estado != "B") {
+                                        if (j == k) {
                                             let filtro = this.listaProcesos.filter(element => element.estado == "E");
 
-                                            if(!ejecutable.ejecutar && filtro <= 0){
-                                                for(let m = 0; m < this.listaProcesos.length; m++){
-                                                    if(this.tiempo >= this.listaProcesos[m].li && this.listaProcesos[m].estado != "" && this.listaProcesos[m].estado != "B"){
-                                                        ejecutable = {"idProceso": m, "ejecutar": true};
+                                            if (!ejecutable.ejecutar && filtro <= 0) {
+                                                for (let m = 0; m < this.listaProcesos.length; m++) {
+                                                    if (this.tiempo >= this.listaProcesos[m].li && this.listaProcesos[m].estado != "" && this.listaProcesos[m].estado != "B") {
+                                                        ejecutable = { "idProceso": m, "ejecutar": true };
                                                     }
                                                 }
                                             }
@@ -253,9 +290,9 @@ class GestionProcesos {
                                             continue;
                                         }
 
-                                        if(this.listaProcesos[j].tiempoTotal < this.listaProcesos[k].tiempoTotal){
+                                        if (this.listaProcesos[j].tiempoTotal < this.listaProcesos[k].tiempoTotal) {
                                             encontrado = true;
-                                        }else{
+                                        } else {
                                             encontrado = false;
                                             break;
                                         }
@@ -263,8 +300,8 @@ class GestionProcesos {
                                 }
                             }
 
-                            if(encontrado){
-                                ejecutable = {"idProceso": j, "ejecutar": true};
+                            if (encontrado) {
+                                ejecutable = { "idProceso": j, "ejecutar": true };
                                 break;
                             }
                         }
@@ -273,20 +310,20 @@ class GestionProcesos {
                     //Proceso se debe bloquear
                     if (proceso.inicio == proceso.recorrido && proceso.recorrido >= 1 && proceso.duracion > 0) {
                         proceso.estado = "B";
-                        for(let j = 0; j < this.listaProcesos.length; j++){
+                        for (let j = 0; j < this.listaProcesos.length; j++) {
                             const procSig = this.listaProcesos[j];
                             var encontrado = false;
-                            
-                            if(this.tiempo >= procSig.li && procSig.estado != "" && procSig.estado != "B"){
-                                for(let k = 0; k < this.listaProcesos.length; k++){
-                                    if(this.tiempo >= this.listaProcesos[k].li && this.listaProcesos[k].estado != "" && this.listaProcesos[k].estado != "B"){   
-                                          
-                                        if(j == k){
+
+                            if (this.tiempo >= procSig.li && procSig.estado != "" && procSig.estado != "B") {
+                                for (let k = 0; k < this.listaProcesos.length; k++) {
+                                    if (this.tiempo >= this.listaProcesos[k].li && this.listaProcesos[k].estado != "" && this.listaProcesos[k].estado != "B") {
+
+                                        if (j == k) {
                                             let filtro = this.listaProcesos.filter(element => element.estado != "");
 
-                                            if(filtro.length == 2){
-                                                for(let m = 0; m < this.listaProcesos.length; m++){
-                                                    if(this.tiempo >= this.listaProcesos[m].li && this.listaProcesos[m].estado != "" && this.listaProcesos[m].estado != "B"){
+                                            if (filtro.length == 2) {
+                                                for (let m = 0; m < this.listaProcesos.length; m++) {
+                                                    if (this.tiempo >= this.listaProcesos[m].li && this.listaProcesos[m].estado != "" && this.listaProcesos[m].estado != "B") {
                                                         encontrado = true;
                                                         j = m;
                                                         break;
@@ -297,9 +334,9 @@ class GestionProcesos {
                                             continue;
                                         }
 
-                                        if(this.listaProcesos[j].tiempoTotal < this.listaProcesos[k].tiempoTotal){
+                                        if (this.listaProcesos[j].tiempoTotal < this.listaProcesos[k].tiempoTotal) {
                                             encontrado = true;
-                                        }else{
+                                        } else {
                                             encontrado = false;
                                             break;
                                         }
@@ -307,18 +344,18 @@ class GestionProcesos {
                                 }
                             }
 
-                            if(encontrado){
-                                ejecutable = {"idProceso": j, "ejecutar": true};
+                            if (encontrado) {
+                                ejecutable = { "idProceso": j, "ejecutar": true };
                                 break;
                             }
                         }
                     }
-                    continue;   
+                    continue;
                 }
 
                 // Bloqueado
                 if (proceso.estado == "B") {
-                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1 ));
+                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1));
                     proceso.duracion -= 1;
 
                     if (proceso.duracion <= 0) {
@@ -327,10 +364,10 @@ class GestionProcesos {
 
                     let filtro = this.listaProcesos.filter(element => element.estado == "E");
 
-                    if(!ejecutable.ejecutar && filtro <= 0){
-                        for(let m = 0; m < this.listaProcesos.length; m++){
-                            if(this.tiempo >= this.listaProcesos[m].li && this.listaProcesos[m].estado != "" && this.listaProcesos[m].estado != "B"){
-                                ejecutable = {"idProceso": m, "ejecutar": true};
+                    if (!ejecutable.ejecutar && filtro <= 0) {
+                        for (let m = 0; m < this.listaProcesos.length; m++) {
+                            if (this.tiempo >= this.listaProcesos[m].li && this.listaProcesos[m].estado != "" && this.listaProcesos[m].estado != "B") {
+                                ejecutable = { "idProceso": m, "ejecutar": true };
                             }
                         }
                     }
@@ -338,7 +375,7 @@ class GestionProcesos {
                     continue;
                 }
 
-                procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1));    
+                procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1));
             }
         }
 
@@ -357,42 +394,165 @@ class GestionProcesos {
                 }
             }
         }
-       
+
         this.tiempo += 1;
         return procesos;
     }
 
     SRTF() {
+        var procesos = [];
+        var ejecutable = { "idProceso": -1, "ejecutar": false, "restante": -1 };
 
+        // Primera ejecución
+        if (this.tiempo == 0) {
+            this.listaProcesos[0].estado = "E";
+        }
+
+        for (let i = 0; i < this.listaProcesos.length; i++) {
+            const proceso = this.listaProcesos[i];
+
+            if (this.tiempo >= proceso.li && proceso.estado != "") {
+                // Ejecución
+                if (proceso.estado == "E") {
+                    proceso.t -= 1;
+                    proceso.recorrido += 1;
+
+                    // Guardar tiempo inicial
+                    if (proceso.recorrido == 1) {
+                        proceso.inicial = this.tiempo - proceso.li;
+                    }
+
+                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, proceso.inicial));
+
+                    // Cuando el proceso termino su ejecución
+                    if (proceso.t <= 0) {
+                        proceso.estado = "";
+
+                        for (let j = 0; j < this.listaProcesos.length; j++) {
+                            const procSig = this.listaProcesos[j];
+                            if (procSig.t > 0 && procSig.li <= this.tiempo && i != j && procSig.estado != "B") {
+                                ejecutable = { "idProceso": j, "ejecutar": true, "restante": procSig.t };
+                                break;
+                            }
+                        }
+
+                        for (let j = 0; j < this.listaProcesos.length; j++) {
+                            const procSig = this.listaProcesos[j];
+                            if (procSig.t < ejecutable.restante && procSig.t > 0 && procSig.li <= this.tiempo && i != j && procSig.estado != "B") {
+                                ejecutable = { "idProceso": j, "ejecutar": true, "restante": procSig.t };
+                            }
+                        }
+                    }
+
+                    // Cuando el proceso se debe bloquear
+                    if (proceso.inicio == proceso.recorrido && proceso.recorrido >= 1 && proceso.duracion > 0) {
+                        proceso.estado = "B";
+                        for (let j = 0; j < this.listaProcesos.length; j++) {
+                            const procSig = this.listaProcesos[j];
+                            if (procSig.t > 0 && procSig.li <= this.tiempo && i != j && procSig.estado != "B") {
+                                ejecutable = { "idProceso": j, "ejecutar": true, "restante": procSig.t };
+                                break;
+                            }
+                        }
+
+                        for (let j = 0; j < this.listaProcesos.length; j++) {
+                            const procSig = this.listaProcesos[j];
+                            if (procSig.t < ejecutable.restante && procSig.t > 0 && procSig.li <= this.tiempo && i != j && procSig.estado != "B") {
+                                ejecutable = { "idProceso": j, "ejecutar": true, "restante": procSig.t };
+                            }
+                        }
+                    }
+                    continue;
+                }
+
+                // Bloqueado
+                if (proceso.estado == "B") {
+                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1));
+                    proceso.duracion -= 1;
+                    debugger
+                    var siguiente = true;
+
+                    for (let i = 0; i < this.listaProcesos.length; i++) {
+                        const proceso = this.listaProcesos[i];
+                        if (proceso.estado == "E") {
+                            siguiente = false;
+                            break;
+                        }
+                    }
+
+                    if (siguiente) {
+                        for (let j = 0; j < this.listaProcesos.length; j++) {
+                            const procSig = this.listaProcesos[j];
+                            if (procSig.t > 0 && procSig.li <= this.tiempo && i != j && procSig.estado != "B") {
+                                ejecutable = { "idProceso": j, "ejecutar": true, "restante": procSig.t };
+                                break;
+                            }
+                        }
+
+                        for (let j = 0; j < this.listaProcesos.length; j++) {
+                            const procSig = this.listaProcesos[j];
+                            if (procSig.t < ejecutable.restante && procSig.t > 0 && procSig.li <= this.tiempo && i != j && procSig.estado != "B") {
+                                ejecutable = { "idProceso": j, "ejecutar": true, "restante": procSig.t };
+                            }
+                        }
+
+                    }
+
+                    if (proceso.duracion <= 0) {
+                        proceso.estado = "W";
+                    }
+                    continue;
+                }
+
+                procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1));
+            }
+        }
+
+        // Ejecutar proceso en la siguiente iteración
+        if (ejecutable.ejecutar) {
+            this.listaProcesos[ejecutable.idProceso].estado = "E";
+            ejecutable = { "idProceso": -1, "ejecutar": false };
+        }
+        // Finalizar la simulación
+        if (this.procesosActivos() == 1) {
+            for (let i = 0; i < this.listaProcesos.length; i++) {
+                const proceso = this.listaProcesos[i];
+                if (proceso.estado == "W" && proceso.duracion <= 0) {
+                    proceso.estado = "E";
+                }
+            }
+        }
+        this.tiempo += 1;
+        return procesos;
     }
 
     RR(quantum) {
         var procesos = [];
         var ejecutable = { "idProceso": -1, "ejecutar": false };
-        var despachador = {"nombre": "Despachador", "li": "0", "t": "1", "inicio": "0", "duracion": "0"};
+        var despachador = { "nombre": "Despachador", "li": "0", "t": "1", "inicio": "0", "duracion": "0" };
 
         // Primera ejecución
-        if(this.tiempo == 0){
+        if (this.tiempo == 0) {
             this.listaProcesos.push(despachador);
-            
-            for(let i = 0; i < this.listaProcesos.length; i++){
+
+            for (let i = 0; i < this.listaProcesos.length; i++) {
                 var proceso = this.listaProcesos[i];
 
-                if(proceso.li == 0){
+                if (proceso.li == 0) {
                     proceso.estado = "W";
                     procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1));
                 }
 
-                if(proceso.nombre == "Despachador"){
+                if (proceso.nombre == "Despachador") {
                     proceso.estado = "E";
-                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, proceso.inicial ));
+                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, proceso.inicial));
                 }
             }
         }
 
         for (let i = 0; i < this.listaProcesos.length; i++) {
             var proceso = this.listaProcesos[i];
-            
+
         }
 
         // Ejecutar proceso en la siguiente iteración
