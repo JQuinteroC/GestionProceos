@@ -29,6 +29,8 @@ class GestionProcesos {
         }
 
         this.listaProcesos = procesosTemp;
+        this.procesosRR = [];
+        this.tiempoRR = 0;
         this.tiempo = 0;
     }
 
@@ -527,44 +529,115 @@ class GestionProcesos {
     }
 
     RR(quantum) {
+        quantum = parseInt(quantum) + 1;
         var procesos = [];
         var ejecutable = { "idProceso": -1, "ejecutar": false };
-        var despachador = { "nombre": "Despachador", "li": "0", "t": "1", "inicio": "0", "duracion": "0" };
-
-        // Primera ejecución
-        if (this.tiempo == 0) {
-            this.listaProcesos.push(despachador);
-
-            for (let i = 0; i < this.listaProcesos.length; i++) {
-                var proceso = this.listaProcesos[i];
-
-                if (proceso.li == 0) {
-                    proceso.estado = "W";
-                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1));
-                }
-
-                if (proceso.nombre == "Despachador") {
-                    proceso.estado = "E";
-                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, proceso.inicial));
-                }
-            }
-        }
+        var bloqueable = { "idProceso": -1, "bloquear": false };
 
         for (let i = 0; i < this.listaProcesos.length; i++) {
             var proceso = this.listaProcesos[i];
 
+            if (proceso.li == this.tiempo) {
+                if (this.tiempo == 0) {
+                    ejecutable = { "idProceso": 0, "ejecutar": true };
+                }
+                this.procesosRR.push(proceso);
+            }
+        }
+
+        if (this.tiempoRR % quantum == 0) {
+            procesos.push(new Proceso("Despachador", this.tiempo, this.tiempo + 1, "D", -1, -1));
+            for (let i = 0; i < this.procesosRR.length; i++) {
+                var proceso = this.procesosRR[i];
+
+                if (proceso.t > 0){
+                    bloqueable = { "idProceso": 0, "bloquear": true };
+                    ejecutable = { "idProceso": 0, "ejecutar": true };
+    
+                    if (proceso.estado == "E") {
+                        proceso.estado = "W";
+                        procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, "W", proceso.t, -1));
+                        continue;
+                    }
+    
+                    if (proceso.estado == "B") {
+                        proceso.duracion -= 1;
+                        if (proceso.duracion <= 0) {
+                            proceso.estado = "W";
+                        }
+                    }
+                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1));
+                }
+
+            }
+
+        } else {
+            for (let i = 0; i < this.procesosRR.length; i++) {
+                var proceso = this.procesosRR[i];
+
+                if (this.tiempo >= proceso.li && proceso.estado != "") {
+                    // Ejecución
+                    if (proceso.estado == "E") {
+                        proceso.t -= 1;
+                        proceso.recorrido += 1;
+
+                        // Guardar tiempo inicial
+                        if (proceso.recorrido == 1) {
+                            proceso.inicial = this.tiempo - proceso.li;
+                        }
+
+                        procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, proceso.inicial));
+
+                        // Cuando el proceso termino su ejecución
+                        if (proceso.t <= 0) {
+                            proceso.estado = "";
+                            proceso.tiempoFin = this.tiempo;
+                            this.tiempoRR = -1;
+                        }
+
+                        // Cuando el proceso se debe bloquear
+                        if (proceso.inicio == proceso.recorrido && proceso.recorrido >= 1 && proceso.duracion > 0) {
+                            proceso.estado = "B";
+                            this.tiempoRR = -1;
+                        }
+                        continue;
+                    }
+
+                    // Bloqueado
+                    if (proceso.estado == "B" && proceso.duracion >= 0) {
+                        procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1));
+                        proceso.duracion -= 1;
+
+                        if (proceso.duracion <= 0) {
+                            proceso.estado = "W";
+                        }
+                        continue
+                    }
+
+                    procesos.push(new Proceso(proceso.nombre, this.tiempo, this.tiempo + 1, proceso.estado, proceso.t, -1));
+
+                }
+
+            }
+        }
+
+        if (bloqueable.bloquear) {
+            const procFinal = this.procesosRR.shift();
+            if (procFinal.t > 0) {
+                this.procesosRR.push(procFinal);
+            }
         }
 
         // Ejecutar proceso en la siguiente iteración
         if (ejecutable.ejecutar) {
-            this.listaProcesos[ejecutable.idProceso].estado = "E";
+            this.procesosRR[ejecutable.idProceso].estado = "E";
             ejecutable = { "idProceso": -1, "ejecutar": false };
         }
 
         // Finalizar la simulación
         if (this.procesosActivos() == 1) {
-            for (let i = 0; i < this.listaProcesos.length; i++) {
-                const proceso = this.listaProcesos[i];
+            for (let i = 0; i < this.procesosRR.length; i++) {
+                const proceso = this.procesosRR[i];
                 if (proceso.estado == "W" && proceso.duracion <= 0) {
                     proceso.estado = "E";
                 }
@@ -572,6 +645,7 @@ class GestionProcesos {
         }
 
         this.tiempo += 1;
+        this.tiempoRR += 1;
         return procesos;
     }
 };

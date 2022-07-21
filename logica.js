@@ -170,8 +170,6 @@ function bloquearCampos() {
 
     gestor = new GestionProcesos(JSON.parse(JSON.stringify(this.procesos)));
     gestor.ordernarLista(selecAlgoritmo);
-
-
 }
 
 //Función para completar de procesos con los input
